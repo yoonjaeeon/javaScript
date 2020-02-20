@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>membership.html</title>
+</head>
+<body>
+   <form action="member.jsp" method="GET">
+      <p><th>이름 : <input type="text" name="name" size"15"></th></p>
+      <p><th>ID : <input type="text" name="ID" size"15" required></p>
+      <p>PW : <input type="password" name="psw" size"15" placeholder="비밀번호" required></p>
+      <p>전공 : 
+      <select name="subject">
+         <option value="1" selected>자바</option>
+         <option value="2">오라클</option>
+         <option value="3">자바스크립트</option>
+      </select></p>
+      <p>성별 : <input type="radio" name="sex" value="male" checked>남자
+            <input type="radio" name="sex" value="female">여자</p>
+      <p></p>
+      <input type="submit" value="전송">
+      <input type="reset" value="다시작성">
+   </form>
+</body>
+</html>

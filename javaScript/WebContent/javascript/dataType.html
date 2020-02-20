@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dataType.html</title>
+</head>
+
+<body>
+    값입력: <input type="text" id="ipt"><br>
+    <button id="btn">구구단 출력</button>
+    <!-- <button id="btn" onclick="gugudan(6)">구구단 출력</button> -->
+    <script>
+        // gugudan(6);
+        var btn = document.getElementById("btn");
+        console.log(btn);
+        btn.onclick = function () { //function 기능
+            console.log("버튼클릭했습니다.") //익명 함수
+            var inputValue = document.getElementById("ipt").value;
+            gugudan(inputValue);
+        }
+        function gugudan(arg) {
+            document.write("구구단<br>")
+            var dan = arg;
+            for (var i = 1; i <= 9; i++) {
+                document.write(dan + 'x' + i + '=' + (dan * i) + "<br>");
+            } //구구단 function 사용
+        }
+        // 자바스크립트 주석.
+        //변수선언 var
+        // document.write("구구단<br>")
+        var dan = 4;
+        for (var i = 1; i <= 9; i++) {
+            // document.write(dan + 'x' + i + '=' + (dan * i) + "<br>");
+        } //구구단
+        var firstName = "scott";
+        // document.write(firstName + "<br>"); //document.write 페이지에 출력
+        firstName = 10;
+        // document.write(firstName + "<br>");
+        firstName = [10, 20, 30, 40];
+        firstName = ["ha", "hong", "yoon", "nam"];
+        // document.write(firstName + "<br>");
+        //반복문
+        for (var i = 0; i < firstName.length; i++) {
+            console.log(i, firstName[i]); //console창에 인덱스 출력 //앞에 출력값은 기본값, 뒤에 출력값은 데이터값
+        }
+        for (idx in firstName) {
+            console.log(firstName[idx]);
+        }
+        //console 창
+        var lastName = "tiger";
+        console.log(lastName);
+    </script>
+</body>
+
+</html>
