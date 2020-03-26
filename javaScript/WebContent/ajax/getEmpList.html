@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+
+<body>
+	<h1>Ajax</h1>
+	<p id="show"></p>
+	<script>
+		var xhtp = new XMLHttpRequest(); //인스턴스
+		xhtp.onreadystatechange = function() {
+			// console.log("readyState: " + xhtp.readyState + ", status: "
+			//		+ xhtp.status) */
+			if (xhtp.readyState == 4 && xhtp.status == 200) {
+				var parsedData = JSON.parse(xhtp.responseText);
+				console.log(parsedData);
+				showPage(parsedData);
+				/* var $tag = "<ul>";
+				$tag += "<li>" + parsedData[0].id + " - "
+						+ parsedData[0].first_name + " - "
+						+ parsedData[0].last_name + "</li></ul>"
+				document.getElementById("show").innerHTML = $tag; */
+			}
+		}
+		xhtp.open("get", "../GetEmpListServlet");
+		xhtp.send();
+
+		function showPage(datas) {
+			// console.log(datas);
+			var fields = [ "empId", "firstName", "lastName" ];
+			var $tr, $td, $text;
+			var tab = document.createElement("table");
+			tab.setAttribute("border", 1);
+			datas.forEach(function(obj) {
+				$tr = document.createElement("tr"); // 1번만
+				// console.log(obj.empId + "," + obj.firstName + "," + obj.lastName);
+				/* $text = document.createTextNode(obj.empId);
+				$td = document.createElement("td");
+				$td.appendChild($text);
+				$tr.appendChild($td);
+
+				$text = document.createTextNode(obj.firstName);
+				$td = document.createElement("td");
+				$td.appendChild($text);
+				$tr.appendChild($td);
+
+				$text = document.createTextNode(obj.lastName);
+				$td = document.createElement("td");
+				$td.appendChild($text);
+				$tr.appendChild($td); */
+
+				fields.forEach(function(f) {
+					$text = document.createTextNode(obj[f]);
+					$td = document.createElement("td");
+					$td.appendChild($text);
+					$tr.appendChild($td);
+				})
+				tab.appendChild($tr);
+			});
+			document.getElementById("show").appendChild(tab);
+		}
+	</script>
+</body>
+
+</html>
