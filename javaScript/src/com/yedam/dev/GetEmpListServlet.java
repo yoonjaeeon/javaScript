@@ -10,6 +10,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 /**
  * Servlet implementation class GetEmpListServlet
  */
@@ -33,27 +36,39 @@ public class GetEmpListServlet extends HttpServlet {
 			throws ServletException, IOException {
 		// TODO Auto-generated method stub
 //		response.getWriter().append("Served at: ").append(request.getContextPath()).append("YJE");
-		EmpDAO dao = new EmpDAO();
-		List<Employee> empList = dao.getEmpList();
+//		EmpDAO dao = new EmpDAO();
+//		List<Employee> empList = dao.getEmpList();
 //		[{"id":1,"first_name":"Megan","last_name":"Edgington","email":"medgington0@purevolume.com","gender":"Female","ip_address":"111.215.29.33"},
 //		 {"id":2,"first_name":"Frederigo","last_name":"Tysack","email":"ftysack1@abc.net.au","gender":"Male","ip_address":"140.96.228.239"},
 //		 {"id":3,"first_name":"Bone","last_name":"McNeachtain","email":"bmcneachtain2@tiny.cc","gender":"Male","ip_address":"87.82.24.231"}]
 		// {"empId":101,"firstName":"scott","lastName":"tiger"}
-		String empJson = "[";
-		int rCnt = 0;
-		int totalCnt = empList.size();
-		for (Employee e : empList) {
-			empJson += "{\"empId\":" + e.getEmployeeId() 
-					+ ",\"firstName\":\"" + e.getFirstName() 
-					+ "\",\"lastName\":\"" + e.getLastName()
-					+ "\",\"salary\":\"" + e.getSalary()
-					+ "\"}";
-			if (++rCnt != totalCnt)
-				empJson += ",";
+//		String empJson = "[";
+//		int rCnt = 0;
+//		int totalCnt = empList.size();
+//		for (Employee e : empList) {
+//			empJson += "{\"empId\":" + e.getEmployeeId() 
+//					+ ",\"firstName\":\"" + e.getFirstName() 
+//					+ "\",\"lastName\":\"" + e.getLastName()
+//					+ "\",\"salary\":\"" + e.getSalary()
+//					+ "\"}";
+//			if (++rCnt != totalCnt)
+//				empJson += ",";
+//		}
+//		empJson += "]";
+//		PrintWriter out = response.getWriter();
+//		out.print(empJson.toString());
+//	}
+		JSONObject obj = new JSONObject();
+		JSONArray ary = new JSONArray();
+		EmpDAO dao = new EmpDAO();
+		for (Employee e : dao.getEmpList()) {
+			obj.put("empId", e.getEmployeeId());
+			obj.put("firstName", e.getFirstName());
+			obj.put("lastName", e.getLastName());
+			ary.add(obj);
 		}
-		empJson += "]";
 		PrintWriter out = response.getWriter();
-		out.print(empJson.toString());
+		out.print(ary.toString());
 	}
 
 	/**
