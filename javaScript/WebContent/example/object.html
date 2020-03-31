@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>object.html</title>
+    <script src="function3.js"></script>
+</head>
+
+<body>
+    <p id="show"></p>
+    <button onclick="clearInterval(auto1)">Stop</button>
+    <script>
+        var auto1 = setInterval(function () {
+            var now = new Date();
+            document.getElementById('show').innerHTML = now;
+        }, 2000);
+        // var result = window.prompt("확인하시겠습니까?");
+        // if (result) {
+        //     console.log("확인버튼을 눌렀습니다.")
+        // } else {
+        //     console.log("취소버튼을 눌렀습니다.")
+        // }
+        // console.log(result);
+        // window.open("http://www.easyspub.com","easyspub");
+        var p1 = new CheckWeight("Hong", 170, 60); //생성자 
+        console.log(p1.myName, p1.myHeight, p1.myWeight);
+        var p2 = {
+            myName: "Hawg",
+            myHeight: 180,
+            myWeight: 88,
+            getInfo: function () {
+                return "이름은: " + this.myName + "키는: " + this.myHeight;
+            }
+        }
+    </script>
+</body>
+
+</html>
