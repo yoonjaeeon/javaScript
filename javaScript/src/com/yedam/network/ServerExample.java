@@ -21,190 +21,206 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
-public class ServerExample extends Application { // 서버 + UI
-   ExecutorService executorService; // server , client의 각각 작업 처리에 대한 쓰레들을 관리하는 pull을 처리함
-   ServerSocket serverSocket;
-   List<Client> list = new Vector<>(); // Vector : arraylist와 비슷함
+public class ServerExample extends Application {
+	ExecutorService executorService;
+	ServerSocket serverSocket;
+	List<Client> connections = new Vector<Client>();
 
-   void startServer() {
-      executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-      try {
-         serverSocket = new ServerSocket();
-         serverSocket.bind(new InetSocketAddress("192.168.0.17", 5001));
-      } catch (IOException e) {
-         if (!serverSocket.isClosed())
-            stopServer(); // serverSocket -> Close()
-      }
-      Runnable runnable = new Runnable() {
+	void startServer() {
+		executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-         @Override
-         public void run() {
-            Platform.runLater(() -> {
-               displayText("[서버 시작]");
-               btnStartStop.setText("stop");
-            }); // Queue
-            while (true) {
-               try {
-                  Socket socket = serverSocket.accept();
-                  String message = "[연결 수락 : " + socket.getRemoteSocketAddress() + " : "
-                        + Thread.currentThread().getName() + "]";
-                  Platform.runLater(() -> displayText(message));
-                  Client client = new Client(socket);
-                  list.add(client);
-               } catch (IOException e) {
-                  if (!serverSocket.isClosed()) {
-                     stopServer();
-                  }
-                  break;
-               } // end of try/catch
-            } // end of while
-         }// end of run()
+		try {
+			serverSocket = new ServerSocket();
+			serverSocket.bind(new InetSocketAddress("192.168.0.23", 5001));
 
-      }; // end of runnable
-      executorService.submit(runnable);
-   }// end of startServer()
+		} catch (Exception e) {
+			if (!serverSocket.isClosed()) {
+				stopServer();
+			}
+		}
 
-   void stopServer() {
-      try {
-         Iterator<Client> iterator = list.iterator();
-         while (iterator.hasNext()) {
-            Client client = iterator.next();
-            client.socket.close();
-            iterator.remove();
-         }
-         if (serverSocket != null && !serverSocket.isClosed())
-            serverSocket.close();
-         if (executorService != null && !executorService.isShutdown())
-            executorService.isShutdown();
-         Platform.runLater(() -> {
-            displayText("[서버 멈춤]");
-            btnStartStop.setText("start");
-         });
-      } catch (IOException e) {
-         e.printStackTrace();
-      } // end of try/catch
-   }// end of stopServer()
+		Runnable runnable = new Runnable() {
 
-   class Client {
-      Socket socket;
+			@Override
+			public void run() {
+				Platform.runLater(() -> {
+					displayText("[서버 시작]");
+					btnStartStop.setText("stop");
+				});
 
-      Client(Socket socket) {
-         this.socket = socket;
-         receive();
-      }
+				while (true) {
+					try {
+						Socket socket = serverSocket.accept();
+						String message = "[연결 수락: " + socket.getRemoteSocketAddress() + ": "
+								+ Thread.currentThread().getName() + "]";
+						Platform.runLater(() -> displayText(message));
+						Client client = new Client(socket);
+						connections.add(client);
+						Platform.runLater(() -> displayText(message));
 
-      void receive() {
-         Runnable runnable = new Runnable() {
+					} catch (Exception e) {
+						if (!serverSocket.isClosed()) {
+							stopServer();
+						}
+						break;
+					}
+				}
+			}
+		};
 
-            @Override
-            public void run() {
-               try {
-                  while (true) {
-                     InputStream is = socket.getInputStream();
-                     byte[] buf = new byte[100];
-                     int readByte = is.read();
-                     if (readByte == -1) {
-                        throw new IOException();
-                     }
-                     String message = "[요청 처리 : " + socket.getRemoteSocketAddress()
-                           + Thread.currentThread().getName() + "]";
-                     Platform.runLater(() -> {
-                        displayText(message);
-                     });
-                     String data = new String(buf, 0, readByte, "UTF-8");
-                     for (Client client : list) {
-                        client.send(data);
-                     }
-                  } // end of while
+		executorService.submit(runnable);
 
-               } catch (IOException e) {
-                  list.remove(Client.this);
-                  String message = "[클라이언트 통신 안됨: " + socket.getRemoteSocketAddress() + ":"
-                        + Thread.currentThread().getName() + "]";
-                  Platform.runLater(() -> {
-                     displayText(message);
-                  });
-                  try {
-                     socket.close();
-                  } catch (IOException e1) {
-                     e1.printStackTrace();
-                  }
-               }
-               // end of try
-            } // end of run()
-         }; // end of runnable
-         executorService.submit(runnable);
-      }
+	}// end of startServer()
 
-      void send(String data) {
-         Runnable runnable = new Runnable() {
+	void stopServer() {
+		try {
+			Iterator<Client> iterator = connections.iterator();
+			while (iterator.hasNext()) {
+				Client client = iterator.next();
+				client.socket.close();
+				iterator.remove();
+			}
+			if (serverSocket != null && !serverSocket.isClosed())
+				serverSocket.close();
+			if (executorService != null && !executorService.isShutdown())
+				executorService.shutdown();
 
-            @Override
-            public void run() {
-               byte[] buf = new byte[100];
-               OutputStream os;
-               try {
-                  os = socket.getOutputStream();
-                  buf = data.getBytes();
-                  os.write(buf);
-                  os.flush();
-               } catch (IOException e) {
-                  String message = "[클라이언트 통신 안됨" + Thread.currentThread().getName() + " : " + "]";
-                  Platform.runLater(() -> {
-                     displayText(message);
-                  });
-                  list.remove(Client.this);
-                  try {
-                     socket.close();
-                  } catch (IOException e1) {
-                     e1.printStackTrace();
-                  } // end of try/catch
-               } // end of try/catch
-            }// end of run()
+			Platform.runLater(() -> {
+				displayText("[서버 멈출]");
+				btnStartStop.setText("start");
+			});
 
-         };// end of runnable;
-         executorService.submit(runnable);
-      }
+		} catch (Exception e) {
 
-   }// end of Client
+		}
+	}// end of stopServer()
 
-   void displayText(String text) {
-      txtDisplay.appendText(text + "\n");
-   }
+	class Client {
+		Socket socket;
 
-   public static void main(String[] args) {
-      launch(args);
-   }
+		Client(Socket socket) {
+			this.socket = socket;
+			receive();
+		}
 
-   TextArea txtDisplay;
-   Button btnStartStop; // 한번 누르면 stop
+		void receive() {
+			Runnable runnable = new Runnable() {
 
-   // UI만드는 start()
-   @Override
-   public void start(Stage primaryStage) throws Exception {
-      BorderPane root = new BorderPane();
-      root.setPrefSize(500, 300);
+				@Override
+				public void run() {
+					try {
+						while (true) {
+							byte[] byteArr = new byte[100];
+							InputStream inputStream = socket.getInputStream();
 
-      txtDisplay = new TextArea();
-      txtDisplay.setEditable(false);
-      BorderPane.setMargin(txtDisplay, new Insets(0, 0, 2, 0));
-      root.setCenter(txtDisplay);
+							int readByteCount = inputStream.read(byteArr);
 
-      btnStartStop = new Button("start");
-      btnStartStop.setPrefHeight(30);
-      btnStartStop.setMaxWidth(Double.MAX_VALUE);
-      btnStartStop.setOnAction((event) -> {
-         if (btnStartStop.getText().equals("start"))
-            startServer();
-         else if (btnStartStop.getText().equals("stop"))
-            stopServer();
-      });
+							if (readByteCount == -1) {
+								throw new IOException();
+							}
 
-      root.setBottom(btnStartStop);
+							String message = "[요청처리: " + socket.getRemoteSocketAddress() + ": "
+									+ Thread.currentThread().getName() + "]";
+							Platform.runLater(() -> displayText(message));
 
-      Scene scene = new Scene(root);
-      primaryStage.setScene(scene);
-      primaryStage.setTitle("Server");
-      primaryStage.show();
-   }
+							String data = new String(byteArr, 0, readByteCount, "UTF-8");
+
+							for (Client client : connections) {
+								client.send(data);
+							}
+						}
+					} catch (Exception e) {
+						try {
+							connections.remove(Client.this);
+							String message = "[클라이언트 통신 안됨: " + socket.getRemoteSocketAddress() + ": "
+									+ Thread.currentThread().getName() + "]";
+							Platform.runLater(() -> displayText(message));
+							socket.close();
+						} catch (IOException e2) {
+
+						}
+					}
+				}
+
+			};
+
+			executorService.submit(runnable);
+
+		}// end of receive()
+
+		void send(String data) {
+			Runnable runnable = new Runnable() {
+
+				@Override
+				public void run() {
+					try {
+						byte[] byteArr = data.getBytes("UTF-8");
+						OutputStream outputStream = socket.getOutputStream();
+						outputStream.write(byteArr);
+						outputStream.flush();
+
+					} catch (Exception e) {
+						try {
+							String message = "[클라이언트 통신 안됨: " + socket.getRemoteSocketAddress() + ": "
+									+ Thread.currentThread().getName() + "]";
+							Platform.runLater(() -> displayText(message));
+							connections.remove(Client.this);
+							socket.close();
+
+						} catch (Exception e1) {
+							e1.printStackTrace();
+						}
+					}
+				}
+
+			};
+
+			executorService.submit(runnable);
+
+		}// end of send()
+
+	}// end of Client
+
+	void displayText(String text) {
+		txtDisplay.appendText(text + "\n");
+	}
+
+	TextArea txtDisplay;
+	Button btnStartStop;
+
+	@Override
+	public void start(Stage primaryStage) throws Exception {
+		BorderPane root = new BorderPane();
+		root.setPrefSize(500, 300);
+
+		txtDisplay = new TextArea();
+		txtDisplay.setEditable(false);
+		BorderPane.setMargin(txtDisplay, new Insets(0, 0, 2, 0));
+		root.setCenter(txtDisplay);
+
+		btnStartStop = new Button("start");
+		btnStartStop.setPrefHeight(30);
+		btnStartStop.setMaxWidth(Double.MAX_VALUE);
+
+		btnStartStop.setOnAction(e -> {
+			if (btnStartStop.getText().equals("start")) {
+				startServer();
+			} else if (btnStartStop.getText().equals("stop")) {
+				stopServer();
+			}
+		});
+		root.setBottom(btnStartStop);
+
+		Scene scene = new Scene(root);
+		scene.getStylesheets().add(getClass().getResource("app.css").toString());
+		primaryStage.setScene(scene);
+		primaryStage.setTitle("Server");
+		primaryStage.setOnCloseRequest(event -> stopServer());
+		primaryStage.show();
+
+	}
+
+	public static void main(String[] args) {
+		launch(args);
+	}
 }
