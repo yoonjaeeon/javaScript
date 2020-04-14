@@ -35,5 +35,5 @@ public class EmployeeStream {
 		}
 		Stream<Employee> stream = list.stream();
 		stream.forEach((s) -> System.out.println(s.getFirstName() + ", " + s.getSalary()));
-	}
+	} 
 }

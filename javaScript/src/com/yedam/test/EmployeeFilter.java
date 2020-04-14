@@ -33,9 +33,9 @@ public class EmployeeFilter {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}
+		} 
 		Stream<Employee> stream = list.stream();
 		stream.filter(s -> s.getSalary() >= 1000)
 				.forEach((s) -> System.out.println(s.getFirstName() + ", " + s.getSalary()));
-	}
+	} 
 }
