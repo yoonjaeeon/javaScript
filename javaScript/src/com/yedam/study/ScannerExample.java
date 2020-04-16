@@ -51,7 +51,7 @@ public class ScannerExample {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
-		}
+		} 
 		return conn;
 	}
 
